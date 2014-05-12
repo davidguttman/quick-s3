@@ -2,6 +2,7 @@ fs = require 'fs'
 knox = require 'knox'
 path = require 'path'
 Progress = require 'progress'
+humanFormat = require 'human-format'
 
 try
   creds = require process.env.HOME + '/.quick-s3.json'
@@ -35,12 +36,20 @@ console.log "To:   #{dest}"
 putStream = client.putFile target, dest, (err, res) -> res.resume()
 
 bar = null
+lastWritten = 0
+lastTime = Date.now()
+
 putStream.on 'progress', (prog) ->
   if not bar
-    bar = new Progress 'Uploading [:bar] :percent :etas',
+    bar = new Progress 'Uploading :speed [:bar] :percent Elapsed: :elapseds ETA: :etas',
       total: prog.total
-      width: 80
+      width: 60
       complete: '='
       incomplete: ' '
 
-  bar.update prog.percent/100
+  now = Date.now()
+  written = prog.written - lastWritten
+  elapsed = (now - lastTime)/1000
+  speed = humanFormat(written / elapsed) + '/s'
+
+  bar.update prog.percent/100, speed: speed
