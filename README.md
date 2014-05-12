@@ -6,7 +6,7 @@ First, install with npm:
 
     npm i -g quick-s3
 
-Next, create a json file at ~/.quick-s3.json with your key, secret, and bucket:
+Next, create a json file at `~/.quick-s3.json` with your key, secret, and bucket:
 
     {
       "key": "<api-key-here>",
@@ -17,6 +17,8 @@ Next, create a json file at ~/.quick-s3.json with your key, secret, and bucket:
 To send something to S3:
 
     quick-s3 path/to/file.ext [destination/filename.ext]
+
+Destination location is optional. If not specified, the file will be copied to the root with the same basename.
 
 # License #
 
