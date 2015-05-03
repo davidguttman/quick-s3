@@ -1,6 +1,6 @@
 {
   "name": "quick-s3",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Quickly upload to s3",
   "main": "index.coffee",
   "scripts": {},
