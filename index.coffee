@@ -2,6 +2,7 @@ fs = require 'fs'
 knox = require 'knox'
 path = require 'path'
 Progress = require 'progress'
+prettyMs = require 'pretty-ms'
 humanFormat = require 'human-format'
 MultiPartUpload = require 'knox-mpu'
 
@@ -43,13 +44,13 @@ fs.stat target, (err, stats) ->
     objectName: dest
   , (err, res) ->
     return console.error err if err
-    console.log 'res', res
+    console.log res
 
   bar = null
   lastWritten = 0
   lastTime = Date.now()
 
-  bar = new Progress 'Uploading :speed [:bar] :percent Elapsed: :elapseds ETA: :etas',
+  bar = new Progress 'Uploading :speed [:bar] :percent Elapsed: :elapseds ETA: :prettyEta',
     total: stats.size
     width: 60
     complete: '='
@@ -58,9 +59,15 @@ fs.stat target, (err, stats) ->
   bar.update 0, speed: ''
 
   upload.on 'progress', (prog) ->
-    now = Date.now()
-    written = prog.written - lastWritten
-    elapsed = (now - lastTime)/1000
-    speed = humanFormat(written / elapsed) + '/s'
+    # console.log 'prog', prog
 
-    bar.update prog.percent/100, speed: speed
+    now = Date.now()
+    written = prog.written
+    elapsed = (now - lastTime)/1000
+    speed = written / elapsed
+    speedStr = humanFormat(speed) + '/s'
+    left = prog.total - prog.written
+    eta = left/speed
+    prettyEta = prettyMs (eta*1000)
+
+    bar.update prog.percent/100, speed: speedStr, prettyEta: prettyEta
