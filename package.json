@@ -7,10 +7,11 @@
   "author": "David Guttman",
   "license": "MIT",
   "dependencies": {
-    "knox": "^0.8.10",
     "coffee-script": "^1.7.1",
-    "progress": "^1.1.5",
-    "human-format": "^0.1.0"
+    "human-format": "^0.1.0",
+    "knox": "^0.8.10",
+    "knox-mpu": "^0.1.6",
+    "progress": "^1.1.5"
   },
   "bin": {
     "quick-s3": "./bin/quick-s3"

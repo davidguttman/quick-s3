@@ -3,6 +3,7 @@ knox = require 'knox'
 path = require 'path'
 Progress = require 'progress'
 humanFormat = require 'human-format'
+MultiPartUpload = require 'knox-mpu'
 
 try
   creds = require process.env.HOME + '/.quick-s3.json'
@@ -33,23 +34,33 @@ console.log "Uploading"
 console.log "From: #{target}"
 console.log "To:   #{dest}"
 
-putStream = client.putFile target, dest, (err, res) -> res.resume()
+fs.stat target, (err, stats) ->
+  return console.error err if err
 
-bar = null
-lastWritten = 0
-lastTime = Date.now()
+  upload = new MultiPartUpload
+    file: target
+    client: client
+    objectName: dest
+  , (err, res) ->
+    return console.error err if err
+    console.log 'res', res
 
-putStream.on 'progress', (prog) ->
-  if not bar
-    bar = new Progress 'Uploading :speed [:bar] :percent Elapsed: :elapseds ETA: :etas',
-      total: prog.total
-      width: 60
-      complete: '='
-      incomplete: ' '
+  bar = null
+  lastWritten = 0
+  lastTime = Date.now()
 
-  now = Date.now()
-  written = prog.written - lastWritten
-  elapsed = (now - lastTime)/1000
-  speed = humanFormat(written / elapsed) + '/s'
+  bar = new Progress 'Uploading :speed [:bar] :percent Elapsed: :elapseds ETA: :etas',
+    total: stats.size
+    width: 60
+    complete: '='
+    incomplete: ' '
 
-  bar.update prog.percent/100, speed: speed
+  bar.update 0, speed: ''
+
+  upload.on 'progress', (prog) ->
+    now = Date.now()
+    written = prog.written - lastWritten
+    elapsed = (now - lastTime)/1000
+    speed = humanFormat(written / elapsed) + '/s'
+
+    bar.update prog.percent/100, speed: speed
